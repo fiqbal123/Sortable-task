@@ -1,0 +1,216 @@
+package test.product;
+
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.io.*;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import org.json.simple.parser.ParseException;
+
+public class ProductListing {
+
+	static ArrayList<String> productName = new ArrayList<String>();
+	static ArrayList<String> manufacturer = new ArrayList<String>();
+	static ArrayList<String> model = new ArrayList<String>();
+	static ArrayList<String> family = new ArrayList<String>();
+	static ArrayList<String> announcedDate = new ArrayList<String>();
+
+	static ArrayList<String> titleListings = new ArrayList<String>();
+	static ArrayList<String> manufacturerListings = new ArrayList<String>();
+	static ArrayList<String> currencyListings = new ArrayList<String>();
+	static ArrayList<String> priceListings = new ArrayList<String>();
+
+	public static void main(String[] args) throws IOException {
+		readProductsFile();
+		readListingsFile();
+
+		ArrayList<String> newProductList = splitproductName(productName);
+
+		for (int i = 0; i < newProductList.size(); i++) {
+
+			String product = newProductList.get(i);
+			String model1 = model.get(i);
+			String manuf = manufacturer.get(i);
+
+			ArrayList<String> lists = new ArrayList<String>();
+
+			for (int y = 0; y < titleListings.size(); y++) {
+				Pattern p1 = Pattern.compile("\\b" + product + "\\b");
+				Matcher m1 = p1.matcher(titleListings.get(y));
+
+				Pattern p2 = Pattern.compile("\\b" + model1 + "\\b");
+				Matcher m2 = p2.matcher(titleListings.get(y));
+
+				if (m1.find() == true
+						|| (m2.find() == true && manufacturerListings.get(y)
+								.equalsIgnoreCase(manuf))) {
+					String s = titleListings.get(y);
+					lists.add(s);
+				}
+
+			}
+			JSONObject obj = new JSONObject();
+			obj.put("product_name", product);
+
+			JSONArray finallist = new JSONArray();
+
+			finallist.add(lists);
+			obj.put("Listings", lists);
+			try (FileWriter file = new FileWriter(
+					"D:\\File\\resultlistings.txt", true)) {
+
+				BufferedWriter bufferedWriter = new BufferedWriter(file);
+				// file.write(obj.toJSONString());
+				bufferedWriter.write(obj.toJSONString());
+				bufferedWriter.write('\n');
+				bufferedWriter.close();
+				System.out
+						.println("Successfully Copied JSON Object to File...");
+				System.out.println("\nJSON Object: " + obj);
+
+			}
+
+		}
+	}
+
+	private static ArrayList<String> splitproductName(
+			ArrayList<String> productName2) {
+
+		ArrayList<String> products = new ArrayList<String>();
+
+		for (Iterator<String> i = productName2.iterator(); i.hasNext();) {
+
+			String item = i.next();
+			String new_str = item.replaceAll("_", " ");
+			products.add(new_str);
+		}
+
+		productName2 = products;
+		return productName2;
+
+	}
+
+	private static void readListingsFile() {
+		BufferedReader br = null;
+		JSONParser parser = new JSONParser();
+
+		try {
+
+			String sCurrentLine;
+
+			br = new BufferedReader(new FileReader("D:\\File\\listings.txt"));
+
+			while ((sCurrentLine = br.readLine()) != null) {
+				System.out.println("Record:\t" + sCurrentLine);
+
+				Object obj;
+				try {
+					obj = parser.parse(sCurrentLine);
+					JSONObject jsonObject = (JSONObject) obj;
+
+					String titleList = (String) jsonObject.get("title");
+					System.out.println(titleList);
+					titleListings.add(titleList);
+
+					String manufacturerList = (String) jsonObject
+							.get("manufacturer");
+					System.out.println(manufacturerList);
+					manufacturerListings.add(manufacturerList);
+
+					String currencyList = (String) jsonObject.get("model");
+					System.out.println(currencyList);
+					currencyListings.add(currencyList);
+
+					String priceList = (String) jsonObject.get("family");
+					System.out.println(priceList);
+					priceListings.add(priceList);
+
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (br != null)
+					br.close();
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+
+	}
+
+	public static void readProductsFile() {
+
+		BufferedReader br = null;
+		JSONParser parser = new JSONParser();
+
+		try {
+
+			String sCurrentLine;
+
+			br = new BufferedReader(new FileReader("D:\\File\\products.txt"));
+
+			while ((sCurrentLine = br.readLine()) != null) {
+				System.out.println("Record:\t" + sCurrentLine);
+
+				Object obj;
+				try {
+					obj = parser.parse(sCurrentLine);
+					JSONObject jsonObject = (JSONObject) obj;
+
+					String productName1 = (String) jsonObject
+							.get("product_name");
+					System.out.println(productName1);
+					productName.add(productName1);
+
+					String manufacturer1 = (String) jsonObject
+							.get("manufacturer");
+					System.out.println(manufacturer1);
+					manufacturer.add(manufacturer1);
+
+					String model1 = (String) jsonObject.get("model");
+					System.out.println(model1);
+					model.add(model1);
+
+					String family1 = (String) jsonObject.get("family");
+					System.out.println(family1);
+					family.add(family1);
+
+					String announcedDate1 = (String) jsonObject
+							.get("announced-date");
+					System.out.println(announcedDate1);
+					announcedDate.add(announcedDate1);
+
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (br != null)
+					br.close();
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+
+}
