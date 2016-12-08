@@ -36,7 +36,7 @@ public class ProductListing {
 		ArrayList<String> newProductList = splitproductName(productName);
 
 		for (int i = 0; i < newProductList.size(); i++) {
-
+			String product1= productName.get(i);
 			String product = newProductList.get(i);
 			String model1 = model.get(i);
 			String manuf = manufacturer.get(i);
@@ -59,7 +59,7 @@ public class ProductListing {
 
 			}
 			JSONObject obj = new JSONObject();
-			obj.put("product_name", product);
+			obj.put("product_name", product1);
 
 			JSONArray finallist = new JSONArray();
 
